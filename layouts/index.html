@@ -86,14 +86,31 @@ hr{
 @media (max-width: 900px){
   .hero-grid{
     flex-direction: column;
+    gap:16px;
+  }
+
+  /* 关键：只在手机端，把图片往下推开和标题的距离 */
+  .hero-left{
+    padding-top: 26px;      /* 你可在 8~24px 之间微调 */
   }
 
   .hero-left img{
     width: 180px;
     height: 280px;
+    margin-top: 0;          /* 保持为0，避免和PC端的margin-top逻辑冲突 */
+  }
+
+  .hero-right{
+    max-width: 100%;
+  }
+  .hero-right .post-content{
+    margin-top: 0;
+  }
+  .hero-right .post-content > p:first-child{
     margin-top: 0;
   }
 }
+
 </style>
 
 {{/* -------- Split content by <!--more--> -------- */}}
