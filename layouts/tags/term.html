@@ -1,0 +1,39 @@
+{{- define "main" -}}
+<header class="page-header">
+  <h1>Academic Tag: {{ .Title }}</h1>
+  <div class="post-description">Posts in Academic section tagged with "{{ .Title }}".</div>
+</header>
+
+{{ $pages := where .Pages "Section" "academic" }}
+{{ $pages = $pages.ByDate.Reverse }}
+
+<div class="tag-chips">
+  <a class="tag-chip" href="/academic/">All</a>
+</div>
+
+{{ if gt (len $pages) 0 }}
+  <div class="posts">
+    {{ range $pages }}
+      <article class="post-entry">
+        <header class="entry-header">
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+        </header>
+        {{ with .Summary }}
+          <div class="entry-content"><p>{{ . }}</p></div>
+        {{ end }}
+        <footer class="entry-footer">
+          <span>{{ .Date.Format "2006-01-02" }}</span>
+        </footer>
+      </article>
+    {{ end }}
+  </div>
+{{ else }}
+  <p>No academic posts found for this tag.</p>
+{{ end }}
+
+<style>
+.tag-chips{ margin:14px 0 26px 0; display:flex; gap:10px; flex-wrap:wrap; }
+.tag-chip{ padding:6px 10px; border:1px solid var(--border-color); border-radius:999px; text-decoration:none; color:var(--primary); font-size:0.92rem;}
+.tag-chip:hover{ background:var(--code-bg); }
+</style>
+{{- end -}}

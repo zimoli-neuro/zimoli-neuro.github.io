@@ -1,0 +1,200 @@
+{{- define "main" -}}
+
+<style>
+/* =========================
+   Hero overall container
+========================= */
+.home-hero{
+  max-width: 1080px;
+  margin: 18px auto 18px auto;
+  padding: 0 24px;
+}
+
+/* Title row */
+.home-title h1{
+  margin: 0 0 -8px 0;
+  text-align: left;
+}
+
+/* =========================
+   Hero grid: image + text
+========================= */
+.hero-grid{
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+.hero-left{
+  flex: 0 0 220px;
+}
+
+.hero-left img{
+  width: 220px;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 14px;
+  display: block;
+  margin-top: 30px;
+}
+
+.hero-right{
+  flex: 1 1 auto;
+}
+
+/* =========================
+   Buttons
+========================= */
+.hero-actions{
+  margin-top:0px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.hero-actions .button{
+  width: fit-content;
+}
+
+/* =========================
+   Shared content width
+========================= */
+.home-wide{
+  max-width: 1080px;
+  margin: 0px auto 0px auto;
+  padding: 0 24px;
+}
+.home-wide-intro{
+  max-width: 1080px;
+  margin: -12px auto -2px auto;
+  padding: 0 24px;
+}
+
+/* =========================
+   Divider
+========================= */
+hr{
+  margin: 36px -8px 36px 8px;
+  border: none;
+  border-top: 1px solid rgb(5, 5, 5);
+}
+
+/* =========================
+   Responsive
+========================= */
+@media (max-width: 900px){
+  .hero-grid{
+    flex-direction: column;
+  }
+
+  .hero-left img{
+    width: 180px;
+    height: 280px;
+    margin-top: 0;
+  }
+}
+</style>
+
+{{/* -------- Split content by <!--more--> -------- */}}
+{{ $parts := split .RawContent "<!--more-->" }}
+{{ $top := index $parts 0 }}
+{{ $bottom := "" }}
+{{ if ge (len $parts) 2 }}
+  {{ $bottom = index $parts 1 }}
+{{ end }}
+
+<section class="home-hero">
+  <header class="home-title">
+    {{ with .Title }}<h1>{{ . }}</h1>{{ end }}
+  </header>
+
+  <div class="hero-grid">
+    <div class="hero-left">
+      <img src="/images/profile.jpg" alt="Zimo" />
+    </div>
+
+    <div class="hero-right">
+      <div class="post-content">
+        {{ $top | markdownify }}
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-actions">
+    <a class="button" href="/files/CV.pdf" target="_blank" rel="noopener">Download CV</a>
+    <a class="button" href="/academic/">Academic</a>
+    <a class="button" href="/neuroscience-notes/">Neuroscience Notes</a>
+  </div>
+</section>
+
+{{ if ne (trim $bottom "\n\r\t ") "" }}
+<section class="home-wide-intro">
+  <div class="post-content">
+    {{ $bottom | markdownify }}
+  </div>
+</section>
+{{ end }}
+
+<hr />
+
+<section class="home-wide">
+  <h2>Academic</h2>
+  <p class="post-description">Introductions about my work and publications.</p>
+
+  {{ $acad := where .Site.RegularPages "Section" "academic" }}
+  {{ $acad = $acad.ByDate.Reverse }}
+  {{ $acad = first 6 $acad }}
+
+
+  {{ if gt (len $acad) 0 }}
+    <div class="posts">
+      {{ range $acad }}
+        <article class="post-entry">
+          <header class="entry-header">
+            <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          </header>
+
+          {{ with .Summary }}
+            <div class="entry-content"><p>{{ . }}</p></div>
+          {{ end }}
+
+          <footer class="entry-footer">
+            <span>{{ .Date.Format "2006-01-02" }}</span>
+            {{ with .Params.venue }} · <span>{{ . }}</span>{{ end }}
+          </footer>
+        </article>
+      {{ end }}
+    </div>
+  {{ end }}
+</section>
+
+<hr />
+
+<section class="home-wide">
+  <h2>Neuroscience Notes</h2>
+  <p class="post-description">Informal thoughts and method tutorials.</p>
+
+  {{ $notes := where .Site.RegularPages "Section" "neuroscience-notes" }}
+  {{ $notes = $notes.ByDate.Reverse }}
+  {{ $notes = first 8 $notes }}
+
+  {{ if gt (len $notes) 0 }}
+    <div class="posts">
+      {{ range $notes }}
+        <article class="post-entry">
+          <header class="entry-header">
+            <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+          </header>
+
+          <footer class="entry-footer">
+            <span>{{ .Date.Format "2006-01-02" }}</span>
+            {{ with .Params.tags }} · <span>{{ delimit . ", " }}</span>{{ end }}
+          </footer>
+        </article>
+      {{ end }}
+    </div>
+  {{ end }}
+</section>
+
+{{- end -}}

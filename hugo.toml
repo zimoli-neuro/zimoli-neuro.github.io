@@ -1,0 +1,57 @@
+baseURL = "http://localhost:1313/"
+languageCode = "zh-cn"
+title = "Zimo Li"
+theme = "PaperMod"
+
+[taxonomies]
+tag = "tags"
+category = "categories"
+
+
+[menu]
+  [[menu.main]]
+  name = "Introduction"
+  url = "/"
+  weight = 10
+
+  [[menu.main]]
+  name = "Academic"
+  url = "/academic/"
+  weight = 20
+
+  [[menu.main]]
+  name = "Neuroscience Notes"
+  url = "/neuroscience-notes/"
+  weight = 30
+
+
+[permalinks]
+  tags = "/tags/:slug/"
+  categories = "/categories/:slug/"
+
+
+[params]
+  [params.profileMode]
+    enabled = false
+    title = "Zimo"
+    subtitle = "Neuroscience researcher interested in semantic cognition, attention, and cognitive control."
+    imageUrl = "/images/profile.jpg"
+    imageTitle = "Zimo"
+    imageWidth = 180
+    imageHeight = 180
+
+    [[params.profileMode.buttons]]
+      name = "Academic"
+      url = "/academic/"
+
+    [[params.profileMode.buttons]]
+      name = "Neuroscience Notes"
+      url = "/neuroscience-notes/"
+
+  [[params.socialIcons]]
+    name = "email"
+    url = "mailto:zimoli.neuro@gmail.com"
+
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/zimoli-neuro"

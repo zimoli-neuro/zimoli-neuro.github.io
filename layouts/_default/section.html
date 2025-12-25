@@ -1,0 +1,32 @@
+{{- define "main" -}}
+<header class="page-header">
+  <h1>{{ .Title }}</h1>
+  {{ with .Params.description }}<div class="post-description">{{ . }}</div>{{ end }}
+</header>
+
+{{/* 列出该 section 下的所有文章（包括 /posts/ 子目录） */}}
+{{ $pages := where .Site.RegularPages "Section" .Section }}
+{{ $pages = where $pages "Type" "ne" "page" }}
+
+{{ if gt (len $pages) 0 }}
+  <div class="posts">
+    {{ range $pages.ByDate.Reverse }}
+      <article class="post-entry">
+        <header class="entry-header">
+          <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+        </header>
+        {{ with .Summary }}
+        <div class="entry-content"><p>{{ . }}</p></div>
+        {{ end }}
+        <footer class="entry-footer">
+          <span>{{ .Date.Format "2006-01-02" }}</span>
+          {{ with .Params.tags }} · <span>Tags: {{ delimit . ", " }}</span>{{ end }}
+        </footer>
+      </article>
+    {{ end }}
+  </div>
+{{ else }}
+  <p>No posts yet.</p>
+{{ end }}
+
+{{- end -}}

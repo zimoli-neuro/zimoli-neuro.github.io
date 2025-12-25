@@ -1,0 +1,167 @@
+{{- define "main" -}}
+
+<header class="page-header">
+  <h1>{{ .Title }}</h1>
+  {{ with .Params.description }}
+    <div class="post-description">{{ . }}</div>
+  {{ end }}
+</header>
+
+{{/* ===== 取 Academic 所有文章 ===== */}}
+{{ $pages := where site.RegularPages "Section" "academic" }}
+{{ $pages = $pages.ByDate.Reverse }}
+
+{{/* ===== 收集全部 tags（去重排序） ===== */}}
+{{ $all := slice }}
+{{ range $pages }}
+  {{ with .Params.tags }}
+    {{ range . }}
+      {{ $all = $all | append . }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ $tags := $all | uniq | sort }}
+
+{{/* ===== Tag Facet ===== */}}
+<div class="facet-wrap">
+  <div class="tag-chips" id="tagChips">
+    <a class="tag-chip is-all is-active" data-tag="__ALL__" href="javascript:void(0)">All</a>
+    {{ range $tags }}
+      <a class="tag-chip" data-tag="{{ . }}" href="javascript:void(0)">{{ . }}</a>
+    {{ end }}
+  </div>
+</div>
+
+{{/* ===== Posts ===== */}}
+<div id="posts" class="posts">
+  {{ range $pages }}
+    {{ $t := "" }}
+    {{ with .Params.tags }}{{ $t = delimit . "|" }}{{ end }}
+
+    <article class="post-entry" data-tags="{{ $t | htmlEscape }}">
+      <header class="entry-header">
+        <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+      </header>
+
+      {{ with .Summary }}
+        <div class="entry-content"><p>{{ . }}</p></div>
+      {{ end }}
+
+      <footer class="entry-footer">
+        <span>{{ .Date.Format "2006-01-02" }}</span>
+        {{ with .Params.tags }} · <span>{{ delimit . ", " }}</span>{{ end }}
+      </footer>
+    </article>
+  {{ end }}
+</div>
+
+<p id="emptyHint" style="display:none; margin-top:18px;">
+  No posts match the selected tags.
+</p>
+
+{{/* ===== Styles ===== */}}
+<style>
+.facet-wrap{ margin: 14px 0 22px 0; }
+
+.tag-chips{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.tag-chip{
+  padding:6px 10px;
+  border:1px solid var(--border-color);
+  border-radius:999px;
+  text-decoration:none;
+  color:var(--primary);
+  font-size:0.92rem;
+  user-select:none;
+  transition: all .15s ease;
+}
+
+.tag-chip:hover{
+  background: var(--code-bg);
+}
+
+/* 选中态：加粗 + 框（不抖动） */
+.tag-chip.is-active{
+  font-weight:700;
+  box-shadow: 0 0 0 2px var(--primary) inset;
+  background: var(--code-bg);
+}
+</style>
+
+{{/* ===== Script ===== */}}
+<script>
+(function(){
+  const posts = Array.from(document.querySelectorAll('.post-entry'));
+  const chipsWrap = document.getElementById('tagChips');
+  const emptyHint = document.getElementById('emptyHint');
+
+  let selected = [];
+
+  function getPostTags(el){
+    const raw = (el.dataset.tags || '').trim();
+    return raw ? raw.split('|').map(s => s.trim()) : [];
+  }
+
+  function matches(postTags){
+    return selected.every(t => postTags.includes(t));
+  }
+
+  function computeAvailableTags(visiblePosts){
+    const set = new Set();
+    visiblePosts.forEach(p => getPostTags(p).forEach(t => set.add(t)));
+    return Array.from(set);
+  }
+
+  function apply(){
+    let visible = [];
+
+    posts.forEach(p => {
+      const pt = getPostTags(p);
+      const ok = selected.length === 0 || matches(pt);
+      p.style.display = ok ? '' : 'none';
+      if(ok) visible.push(p);
+    });
+
+    emptyHint.style.display = visible.length ? 'none' : '';
+
+    const available = computeAvailableTags(visible);
+
+    Array.from(chipsWrap.querySelectorAll('.tag-chip')).forEach(chip => {
+      const tag = chip.dataset.tag;
+
+      if(tag === '__ALL__'){
+        chip.classList.toggle('is-active', selected.length === 0);
+        chip.style.display = '';
+        return;
+      }
+
+      chip.classList.toggle('is-active', selected.includes(tag));
+      chip.style.display = available.includes(tag) ? '' : 'none';
+    });
+  }
+
+  chipsWrap.addEventListener('click', e => {
+    const chip = e.target.closest('.tag-chip');
+    if(!chip) return;
+
+    const tag = chip.dataset.tag;
+
+    if(tag === '__ALL__'){
+      selected = [];
+    }else{
+      selected = selected.includes(tag)
+        ? selected.filter(t => t !== tag)
+        : selected.concat(tag);
+    }
+    apply();
+  });
+
+  apply();
+})();
+</script>
+
+{{- end -}}
